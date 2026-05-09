@@ -7,7 +7,13 @@ const TOKEN_KEY = "dinedesign.token";
  * Resolve the base URL at request time based on the page origin.
  */
 export function getApiBaseUrl(): string {
-  const fromBuild = (import.meta.env.VITE_API_BASE_URL || "").trim().replace(/\/$/, "");
+  const fromBuild = (
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_BACKEND_URL ||
+    ""
+  )
+    .trim()
+    .replace(/\/$/, "");
   if (typeof window === "undefined") {
     return fromBuild || "http://localhost:5000";
   }
