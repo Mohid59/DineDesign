@@ -36,17 +36,22 @@ async function login({ email, password, tenantId }) {
     throw err;
   }
 
+  const envAdminCredentials = adminAccessService.getEnvAdminCredentials();
   const matchingAdminCredential = adminAccessService.findMatchingEnvAdminCredential(
     normalizedEmail,
     password,
   );
   const shouldBeAdmin = Boolean(matchingAdminCredential);
-  if (shouldBeAdmin && user.role !== "admin") {
-    user.role = "admin";
-    await user.save();
-  } else if (!shouldBeAdmin && user.role === "admin") {
-    user.role = "customer";
-    await user.save();
+  // Only sync role from env when ADMIN_CREDENTIALS is actually set. Otherwise a missing
+  // Vercel env would demote every admin to customer on login (looks like "broken" auth).
+  if (envAdminCredentials.length > 0) {
+    if (shouldBeAdmin && user.role !== "admin") {
+      user.role = "admin";
+      await user.save();
+    } else if (!shouldBeAdmin && user.role === "admin") {
+      user.role = "customer";
+      await user.save();
+    }
   }
 
   const token = jwt.sign(

@@ -3,6 +3,7 @@ const cors = require("cors");
 const routes = require("./routes");
 const errorMiddleware = require("./middleware/error.middleware");
 const logger = require("./middleware/logger.middleware");
+const { ensureConnected } = require("./database/connection");
 // src/app.js
 
 const app = express();
@@ -21,6 +22,15 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
+
+app.use(async (req, res, next) => {
+  try {
+    await ensureConnected();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.get("/health", (req, res) => {
   res.status(200).json({ ok: true, message: "Backend is running" });
