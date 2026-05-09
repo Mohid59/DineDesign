@@ -1,0 +1,14 @@
+{
+  "name": "fyp-workspace",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "start:backend": "npm run start --prefix backend",
+    "build:frontend": "npm run build --prefix frontend"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

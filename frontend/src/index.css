@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 25% 98%;
+    --foreground: 20 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 20% 10%;
+
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 30% 95%;
+    --secondary-foreground: 20 20% 15%;
+
+    --muted: 30 15% 94%;
+    --muted-foreground: 20 10% 45%;
+
+    --accent: 25 90% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 25 95% 53%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom tokens */
+    --warm: 35 80% 56%;
+    --warm-foreground: 0 0% 100%;
+    --surface: 30 20% 97%;
+    --surface-elevated: 0 0% 100%;
+    --hero-gradient: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 90% 55%));
+    --text-gradient: linear-gradient(135deg, hsl(25 95% 53%), hsl(15 90% 50%));
+    --shadow-card: 0 4px 24px -4px hsl(25 95% 53% / 0.08);
+    --shadow-card-hover: 0 12px 40px -8px hsl(25 95% 53% / 0.15);
+    --shadow-elevated: 0 20px 60px -15px hsl(0 0% 0% / 0.1);
+  }
+
+  .dark {
+    --background: 20 15% 6%;
+    --foreground: 30 20% 95%;
+
+    --card: 20 15% 9%;
+    --card-foreground: 30 20% 95%;
+
+    --popover: 20 15% 9%;
+    --popover-foreground: 30 20% 95%;
+
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 20 12% 15%;
+    --secondary-foreground: 30 20% 95%;
+
+    --muted: 20 12% 15%;
+    --muted-foreground: 30 10% 55%;
+
+    --accent: 25 90% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 20 12% 18%;
+    --input: 20 12% 18%;
+    --ring: 25 95% 53%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: var(--text-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-hero-gradient {
+    background: var(--hero-gradient);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  .reveal-hidden {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 500ms ease, transform 500ms ease;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

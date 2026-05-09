@@ -1,0 +1,392 @@
+{
+  "info": {
+    "name": "FYP Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "tenantId", "value": "default-tenant" },
+    { "key": "token", "value": "" },
+    { "key": "categoryId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login (sets token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('token', json?.data?.token || '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [{\"menuId\": null, \"quantity\": 1}],\n  \"totalAmount\": 1000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/order",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "order"]
+        }
+      }
+    },
+    {
+      "name": "Orders - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/order",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "order"]
+        }
+      }
+    },
+    {
+      "name": "Reservations - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"date\": \"2026-04-16\",\n  \"time\": \"19:30\",\n  \"people\": 2\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/reservation",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "reservation"]
+        }
+      }
+    },
+    {
+      "name": "Reservations - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reservation",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "reservation"]
+        }
+      }
+    },
+    {
+      "name": "Promotion - Create Coupon",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"code\": \"WELCOME10\",\n  \"discount\": 10\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/promotion/coupons",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "promotion", "coupons"]
+        }
+      }
+    },
+    {
+      "name": "Promotion - List Coupons",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/promotion/coupons",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "promotion", "coupons"]
+        }
+      }
+    },
+    {
+      "name": "Payment - Pay",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"demo\",\n  \"amount\": 1000\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/payment/pay",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "payment", "pay"]
+        }
+      }
+    },
+    {
+      "name": "Analytics - Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/analytics/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "analytics", "stats"]
+        }
+      }
+    },
+    {
+      "name": "AI - Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"hello\"\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/chat",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "chat"]
+        }
+      }
+    },
+    {
+      "name": "Users - Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "me"]
+        }
+      }
+    },
+    {
+      "name": "Users - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        }
+      }
+    },
+    {
+      "name": "Menu - Create Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('categoryId', json?.data?._id || '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Starters\"\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/menu/categories",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "menu", "categories"]
+        }
+      }
+    },
+    {
+      "name": "Menu - List Categories",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/menu/categories",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "menu", "categories"]
+        }
+      }
+    },
+    {
+      "name": "Menu - Create Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Soup\",\n  \"description\": \"Hot soup\",\n  \"price\": 250,\n  \"categoryId\": \"{{categoryId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/menu/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "menu", "items"]
+        }
+      }
+    },
+    {
+      "name": "Menu - List Items",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/menu/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "menu", "items"]
+        }
+      }
+    },
+    {
+      "name": "Tenant Admin - Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/tenant-admin",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "tenant-admin"]
+        }
+      }
+    },
+    {
+      "name": "Notification - Send",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"channel\": \"sms\",\n  \"to\": \"+923001234567\",\n  \"message\": \"Test notification\"\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/notification/send",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notification", "send"]
+        }
+      }
+    },
+    {
+      "name": "Notification - Process Queue",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notification/process",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notification", "process"]
+        }
+      }
+    },
+    {
+      "name": "Notification - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-tenant-id", "value": "{{tenantId}}" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notification",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notification"]
+        }
+      }
+    }
+  ]
+}
+
