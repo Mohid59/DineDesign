@@ -1,10 +1,27 @@
-const configuredApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").trim();
-const isLocalhost =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-const API_BASE_URL = configuredApiBaseUrl || (isLocalhost ? "http://localhost:5000" : "/_/backend");
 const TENANT_ID = import.meta.env.VITE_TENANT_ID || "default-tenant";
 const TOKEN_KEY = "dinedesign.token";
+
+/**
+ * Vite bakes VITE_API_BASE_URL at build time. If `frontend/.env` uses localhost, production
+ * bundles would call the visitor's own machine — fetch fails with "Failed to fetch".
+ * Resolve the base URL at request time based on the page origin.
+ */
+export function getApiBaseUrl(): string {
+  const fromBuild = (import.meta.env.VITE_API_BASE_URL || "").trim().replace(/\/$/, "");
+  if (typeof window === "undefined") {
+    return fromBuild || "http://localhost:5000";
+  }
+  const pageIsLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const buildPointsToLoopback = !fromBuild || /localhost|127\.0\.0\.1/i.test(fromBuild);
+
+  if (fromBuild && (!buildPointsToLoopback || pageIsLocal)) {
+    return fromBuild;
+  }
+  if (pageIsLocal) {
+    return fromBuild && /localhost|127\.0\.0\.1/i.test(fromBuild) ? fromBuild : "http://localhost:5000";
+  }
+  return "/_/backend";
+}
 
 export function getToken() {
   return window.localStorage.getItem(TOKEN_KEY) || "";
@@ -25,15 +42,26 @@ type RequestOptions = {
 };
 
 export async function apiRequest(path: string, options: RequestOptions = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: options.method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "x-tenant-id": TENANT_ID,
-      ...(options.auth ? { Authorization: `Bearer ${getToken()}` } : {}),
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
+  const base = getApiBaseUrl();
+  let response: Response;
+  try {
+    response = await fetch(`${base}${path}`, {
+      method: options.method || "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "x-tenant-id": TENANT_ID,
+        ...(options.auth ? { Authorization: `Bearer ${getToken()}` } : {}),
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+  } catch (e) {
+    if (e instanceof TypeError && e.message === "Failed to fetch") {
+      throw new Error(
+        `Cannot reach API (${base}). Deploy the backend with your frontend, or set VITE_API_BASE_URL in Vercel to your backend HTTPS URL and redeploy.`,
+      );
+    }
+    throw e instanceof Error ? e : new Error("Network error");
+  }
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
