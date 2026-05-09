@@ -1,4 +1,4 @@
-require("dotenv").config({ override: true });
+require("dotenv").config();
 const app = require("./app");
 const { connectDatabase } = require("./database/connection");
 const { ensureDefaultAdminAccount } = require("./modules/auth/auth.service");
