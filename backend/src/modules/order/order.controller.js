@@ -27,53 +27,12 @@ exports.createOrder = asyncHandler(async (req, res) => {
 });
 
 exports.getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.aggregate([
-    {
-      $match: {
-        tenantId: req.tenantId,
-        templateId: { $exists: true, $ne: "" },
-      },
-    },
-    {
-      $lookup: {
-        from: "users",
-        let: { orderUserId: "$userId", tenantId: "$tenantId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: [{ $toString: "$_id" }, "$$orderUserId"] },
-                  { $eq: ["$tenantId", "$$tenantId"] },
-                ],
-              },
-            },
-          },
-          {
-            $project: {
-              role: 1,
-            },
-          },
-        ],
-        as: "orderUser",
-      },
-    },
-    {
-      $match: {
-        "orderUser.0.role": "customer",
-      },
-    },
-    {
-      $project: {
-        orderUser: 0,
-      },
-    },
-    {
-      $sort: {
-        createdAt: -1,
-      },
-    },
-  ]);
+  // Orders are only created by customers (enforced in createOrder), so no join needed.
+  const orders = await Order.find(
+    { tenantId: req.tenantId, templateId: { $exists: true, $ne: "" } },
+    null,
+    { sort: { createdAt: -1 } }
+  ).lean();
   return ok(res, orders, "Orders");
 });
 
