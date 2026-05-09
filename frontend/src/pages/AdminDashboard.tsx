@@ -2,7 +2,7 @@ import { Bell, Layers, RefreshCcw, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { getOrders, getTenantDashboard } from "@/lib/api";
+import { getNotifications, getOrders } from "@/lib/api";
 
 const TEMPLATES_TOTAL = 72;
 const AUTO_REFRESH_MS = 10000;
@@ -16,18 +16,28 @@ const AdminDashboard = () => {
 
   const load = async (showLoading = true) => {
     if (showLoading) setLoading(true);
-    try {
-      const [orders, dashboard] = await Promise.all([getOrders(), getTenantDashboard()]);
-      const liveOrdersCount = Array.isArray(orders?.data) ? orders.data.length : Number(dashboard?.data?.totals?.orders || 0);
-      setOrdersCount(liveOrdersCount);
-      setNotificationsCount(liveOrdersCount);
-      setLastUpdated(new Date().toLocaleString());
-      setInfo("");
-    } catch (e) {
-      setInfo(e instanceof Error ? e.message : "Failed to fetch admin data");
-    } finally {
-      if (showLoading) setLoading(false);
+    const errors: string[] = [];
+
+    const [ordersResult, notificationsResult] = await Promise.allSettled([
+      getOrders(),
+      getNotifications(),
+    ]);
+
+    if (ordersResult.status === "fulfilled") {
+      setOrdersCount(Array.isArray(ordersResult.value?.data) ? ordersResult.value.data.length : 0);
+    } else {
+      errors.push(ordersResult.reason instanceof Error ? ordersResult.reason.message : "Failed to load orders");
     }
+
+    if (notificationsResult.status === "fulfilled") {
+      setNotificationsCount(Array.isArray(notificationsResult.value?.data) ? notificationsResult.value.data.length : 0);
+    } else {
+      errors.push(notificationsResult.reason instanceof Error ? notificationsResult.reason.message : "Failed to load notifications");
+    }
+
+    setInfo(errors.join(" | "));
+    setLastUpdated(new Date().toLocaleString());
+    if (showLoading) setLoading(false);
   };
 
   useEffect(() => {
