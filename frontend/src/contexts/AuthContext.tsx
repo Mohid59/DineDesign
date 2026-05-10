@@ -20,6 +20,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   role: UserRole | null;
   token: string;
+  loading: boolean;
   signIn: (payload: { name: string; email: string; role: UserRole; token: string }) => void;
   signOut: () => void;
 }
@@ -32,23 +33,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-      return;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { user: AuthUser; role: UserRole };
+        setUser(parsed.user);
+        setRole(parsed.role);
+        setToken(getToken());
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+        clearToken();
+      }
     }
-
-    try {
-      const parsed = JSON.parse(raw) as { user: AuthUser; role: UserRole };
-      setUser(parsed.user);
-      setRole(parsed.role);
-      setToken(getToken());
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-      clearToken();
-    }
+    setLoading(false);
   }, []);
 
   const signIn = useCallback(
@@ -79,10 +79,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       role,
       token,
+      loading,
       signIn,
       signOut,
     }),
-    [role, signIn, signOut, token, user],
+    [loading, role, signIn, signOut, token, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
