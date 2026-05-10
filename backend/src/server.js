@@ -7,9 +7,13 @@ const PORT = process.env.PORT || 5000;
 
 (async () => {
   await connectDatabase();
-  await ensureDefaultAdminAccount();
+  try {
+    await ensureDefaultAdminAccount();
+  } catch (err) {
+    // Non-fatal: server still starts even if admin seeding fails.
+    console.error("Warning: ensureDefaultAdminAccount failed:", err.message);
+  }
   app.listen(PORT, () => {
-    // Keep startup output simple and readable for local dev.
     console.log(`Server running on port ${PORT}`);
   });
 })().catch((err) => {
